@@ -19,5 +19,5 @@ data = data.loc[:30, to_use]
 with sqlite3.connect("db.db") as conn:
 
     data.to_sql(name="records", con=conn, if_exists="replace")
-
+    print(conn.execute("SELECT * FROM records").fetchall())
     print(conn.execute("SELECT * FROM records").fetchall())
