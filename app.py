@@ -25,43 +25,63 @@ class Table(tk.Frame):
         scrolltable.pack(side=tk.RIGHT, fill=tk.Y)
         table.pack(expand=tk.YES, fill=tk.BOTH)
 
+    def set(self, headings=tuple(), rows=tuple()):
+        table = ttk.Treeview(self, show="headings", selectmode="browse")
+        table["columns"] = headings
+        table["displaycolumns"] = headings
+
+        for head in headings:
+            table.heading(head, text=head, anchor=tk.CENTER)
+            table.column(head, anchor=tk.CENTER)
+
+        for row in rows:
+            table.insert("", tk.END, values=tuple(row))
+
+        scrolltable = tk.Scrollbar(self, command=table.yview)
+        table.configure(yscrollcommand=scrolltable.set)
+        scrolltable.pack(side=tk.RIGHT, fill=tk.Y)
+        table.pack(expand=tk.YES, fill=tk.BOTH)
+
 
 with sqlite3.connect("db.db") as conn:
     cursor = conn.execute("""SELECT * FROM records""")
     columns = [x[0] for x in cursor.description]
-    print(columns)
     init_table = cursor.fetchall()
-    print(init_table)
 
-    def clicked():
-        res = f"{txt.get()}"
-        lbl.configure(text=res)
-
-    def free_query():
-        res = f"{txt.get()}"
+    def filtered():
+        query = (
+            f"SELECT * FROM records WHERE {combo_col.get()} {combo.get()} {txt.get()}"
+        )
+        print(query)
+        cursor = conn.execute(query)
+        headings = [x[0] for x in cursor.description]
+        rows = cursor.fetchall()
+        table[0].forget()
+        table[0] = Table(window, headings=columns, rows=rows)
+        table[0].pack(expand=tk.YES, fill=tk.BOTH)
 
     window = Tk()
     window.title("wiseman")
     lbl = Label(window, text="Table", font=("Arial Bold", 24))
     lbl.pack()
 
-    txt = Entry(window, width=10)
-    txt.pack()
-
     combo_col = ttk.Combobox(window)
-    combo_col["values"] = ("=", "<", ">", ">=", "<=")
-    combo_col.current(0)
+    combo_col["values"] = columns
+    combo_col.current(1)
     combo_col.pack()
 
     combo = ttk.Combobox(window)
-    combo["values"] = ("=", "<", ">", ">=", "<=")
+    combo["values"] = ("=", "!=", "<", ">", ">=", "<=")
     combo.current(0)
     combo.pack()
 
-    btn = Button(window, text="Filter", command=clicked)
+    txt = Entry(window, width=10)
+    txt.pack()
+
+    btn = Button(window, text="Filter", command=filtered)
     btn.pack()
 
-    table = Table(window, headings=columns, rows=init_table,)
-    table.pack(expand=tk.YES, fill=tk.BOTH)
+    table = [Table(window, headings=columns, rows=init_table)]
+    table[0].pack(expand=tk.YES, fill=tk.BOTH)
 
     window.mainloop()
