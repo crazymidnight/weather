@@ -25,23 +25,6 @@ class Table(tk.Frame):
         scrolltable.pack(side=tk.RIGHT, fill=tk.Y)
         table.pack(expand=tk.YES, fill=tk.BOTH)
 
-    def set(self, headings=tuple(), rows=tuple()):
-        table = ttk.Treeview(self, show="headings", selectmode="browse")
-        table["columns"] = headings
-        table["displaycolumns"] = headings
-
-        for head in headings:
-            table.heading(head, text=head, anchor=tk.CENTER)
-            table.column(head, anchor=tk.CENTER)
-
-        for row in rows:
-            table.insert("", tk.END, values=tuple(row))
-
-        scrolltable = tk.Scrollbar(self, command=table.yview)
-        table.configure(yscrollcommand=scrolltable.set)
-        scrolltable.pack(side=tk.RIGHT, fill=tk.Y)
-        table.pack(expand=tk.YES, fill=tk.BOTH)
-
 
 with sqlite3.connect("db.db") as conn:
     cursor = conn.execute("""SELECT * FROM records""")
