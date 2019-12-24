@@ -2,7 +2,6 @@ import sqlite3
 import tkinter as tk
 from tkinter import *
 import tkinter.ttk as ttk
-import pandas as pd
 
 
 class Table(tk.Frame):
