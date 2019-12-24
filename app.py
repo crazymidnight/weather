@@ -35,7 +35,6 @@ with sqlite3.connect("db.db") as conn:
         query = (
             f"SELECT * FROM records WHERE {combo_col.get()} {combo.get()} {txt.get()}"
         )
-        print(query)
         cursor = conn.execute(query)
         headings = [x[0] for x in cursor.description]
         rows = cursor.fetchall()
