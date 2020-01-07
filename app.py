@@ -26,6 +26,19 @@ class Table(tk.Frame):
 
 
 with sqlite3.connect("db.db") as conn:
+    conn.execute("""DROP TABLE records""")
+    conn.execute(
+        """
+        CREATE TABLE records AS
+        SELECT rooms.*, geo.latitude, geo.longitude, address.display_address,
+        address.street_address, meta.created, meta.photos, meta.description, price.price
+        FROM rooms 
+        JOIN geo ON (rooms.listing_id = geo.listing_id)
+        JOIN address ON (rooms.listing_id = address.listing_id)
+        JOIN meta ON (rooms.listing_id = meta.listing_id)
+        JOIN price ON (rooms.listing_id = price.listing_id)
+        """
+    )
     cursor = conn.execute("""SELECT * FROM records""")
     columns = [x[0] for x in cursor.description]
     init_table = cursor.fetchall()
