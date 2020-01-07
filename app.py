@@ -20,8 +20,12 @@ class Table(tk.Frame):
             table.insert("", tk.END, values=tuple(row))
 
         scrolltable = tk.Scrollbar(self, command=table.yview)
-        table.configure(yscrollcommand=scrolltable.set)
+        scrollcolumns = tk.Scrollbar(self, command=table.xview, orient=tk.HORIZONTAL)
+        table.configure(
+            xscrollcommand=scrollcolumns.set, yscrollcommand=scrolltable.set
+        )
         scrolltable.pack(side=tk.RIGHT, fill=tk.Y)
+        scrollcolumns.pack(side=tk.BOTTOM, fill=tk.X)
         table.pack(expand=tk.YES, fill=tk.BOTH)
 
 
