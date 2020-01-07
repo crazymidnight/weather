@@ -1,7 +1,15 @@
 import sqlite3
 import tkinter as tk
-from tkinter import *
 import tkinter.ttk as ttk
+from tkinter import *
+
+import matplotlib
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
+import seaborn as sns
+import pandas as pd
+
+matplotlib.use("TkAgg")
 
 
 class Table(tk.Frame):
@@ -46,6 +54,7 @@ with sqlite3.connect("db.db") as conn:
     cursor = conn.execute("""SELECT * FROM records""")
     columns = [x[0] for x in cursor.description]
     init_table = cursor.fetchall()
+    df = pd.DataFrame(init_table, columns=columns)
 
     def filtered():
         query = (
@@ -57,6 +66,29 @@ with sqlite3.connect("db.db") as conn:
         table[0].forget()
         table[0] = Table(window, headings=columns, rows=rows)
         table[0].pack(expand=tk.YES, fill=tk.BOTH)
+
+    def build_linear():
+        f = Figure(figsize=(5, 5), dpi=200)
+        a = f.add_subplot(111)
+        sns.scatterplot(df["bedrooms"], df["price"], ax=a)
+        canvas = FigureCanvasTkAgg(f, window)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
+
+        canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+    def build_trend():
+        pass
+
+    def build_hist():
+        f = Figure(figsize=(5, 5), dpi=200)
+        a = f.add_subplot(111)
+        sns.barplot(df["index"], df["price"], ax=a)
+        canvas = FigureCanvasTkAgg(f, window)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
+
+        canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
     window = Tk()
     window.title("wiseman")
@@ -78,6 +110,12 @@ with sqlite3.connect("db.db") as conn:
 
     btn = Button(window, text="Filter", command=filtered)
     btn.pack()
+
+    btn_plt = Button(window, text="Plot", command=build_linear)
+    btn_plt.pack()
+
+    btn_hist = Button(window, text="Hist", command=build_hist)
+    btn_hist.pack()
 
     table = [Table(window, headings=columns, rows=init_table)]
     table[0].pack(expand=tk.YES, fill=tk.BOTH)
