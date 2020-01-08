@@ -4,10 +4,11 @@ import tkinter.ttk as ttk
 from tkinter import *
 
 import matplotlib
+import numpy as np
+import pandas as pd
+import seaborn as sns
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-import seaborn as sns
-import pandas as pd
 
 matplotlib.use("TkAgg")
 
@@ -64,27 +65,41 @@ with sqlite3.connect("db.db") as conn:
         headings = [x[0] for x in cursor.description]
         rows = cursor.fetchall()
         table[0].forget()
-        table[0] = Table(window, headings=columns, rows=rows)
+        table[0] = Table(tab_1, headings=columns, rows=rows)
         table[0].pack(expand=tk.YES, fill=tk.BOTH)
 
     def build_linear():
+        plot_window = Tk()
+        plot_window.title("linear plot")
         f = Figure(figsize=(5, 5), dpi=200)
         a = f.add_subplot(111)
-        sns.scatterplot(df["bedrooms"], df["price"], ax=a)
-        canvas = FigureCanvasTkAgg(f, window)
+        sns.scatterplot(df[x_col.get()], df[y_col.get()], ax=a)
+        canvas = FigureCanvasTkAgg(f, plot_window)
         canvas.draw()
         canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
 
         canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
     def build_trend():
-        pass
-
-    def build_hist():
+        plot_window = Tk()
+        plot_window.title("trend")
         f = Figure(figsize=(5, 5), dpi=200)
         a = f.add_subplot(111)
-        sns.barplot(df["index"], df["price"], ax=a)
-        canvas = FigureCanvasTkAgg(f, window)
+        sns.regplot(df[x_col.get()], df[y_col.get()], x_estimator=np.mean, ax=a)
+        canvas = FigureCanvasTkAgg(f, plot_window)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
+
+        canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+    def build_hist():
+        plot_window = Tk()
+        plot_window.title("histogram")
+        f = Figure(figsize=(5, 5), dpi=200)
+        a = f.add_subplot(111)
+        agg = df.groupby("bedrooms").apply(np.mean)
+        sns.barplot(df[x_col.get()], df[y_col.get()], ax=a)
+        canvas = FigureCanvasTkAgg(f, plot_window)
         canvas.draw()
         canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
 
@@ -92,32 +107,54 @@ with sqlite3.connect("db.db") as conn:
 
     window = Tk()
     window.title("wiseman")
-    lbl = Label(window, text="Table", font=("Arial Bold", 24))
+
+    tab_control = ttk.Notebook(window)
+    tab_1 = ttk.Frame(tab_control)
+    tab_2 = ttk.Frame(tab_control)
+
+    tab_control.add(tab_1, text="Data extracrion")
+    tab_control.add(tab_2, text="Visualization")
+
+    lbl = Label(tab_1, text="Table", font=("Arial Bold", 24))
     lbl.pack()
 
-    combo_col = ttk.Combobox(window)
+    combo_col = ttk.Combobox(tab_1)
     combo_col["values"] = columns
     combo_col.current(1)
     combo_col.pack()
 
-    combo = ttk.Combobox(window)
+    combo = ttk.Combobox(tab_1)
     combo["values"] = ("=", "!=", "<", ">", ">=", "<=")
     combo.current(0)
     combo.pack()
 
-    txt = Entry(window, width=10)
+    txt = Entry(tab_1, width=10)
     txt.pack()
 
-    btn = Button(window, text="Filter", command=filtered)
+    btn = Button(tab_1, text="Filter", command=filtered)
     btn.pack()
 
-    btn_plt = Button(window, text="Plot", command=build_linear)
+    x_col = ttk.Combobox(tab_2)
+    x_col["values"] = columns
+    x_col.current(1)
+    x_col.pack()
+
+    y_col = ttk.Combobox(tab_2)
+    y_col["values"] = columns
+    y_col.current(2)
+    y_col.pack()
+
+    btn_plt = Button(tab_2, text="Plot", command=build_linear)
     btn_plt.pack()
 
-    btn_hist = Button(window, text="Hist", command=build_hist)
+    btn_hist = Button(tab_2, text="Hist", command=build_hist)
     btn_hist.pack()
 
-    table = [Table(window, headings=columns, rows=init_table)]
+    btn_trend = Button(tab_2, text="Trend", command=build_trend)
+    btn_trend.pack()
+
+    table = [Table(tab_1, headings=columns, rows=init_table)]
     table[0].pack(expand=tk.YES, fill=tk.BOTH)
 
+    tab_control.pack(expand=1, fill="both")
     window.mainloop()
