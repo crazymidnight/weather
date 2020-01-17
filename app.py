@@ -71,9 +71,9 @@ with sqlite3.connect("db.db") as conn:
     def build_linear():
         plot_window = Tk()
         plot_window.title("linear plot")
-        f = Figure(figsize=(5, 5), dpi=200)
+        f = Figure(figsize=(5, 5), dpi=100)
         a = f.add_subplot(111)
-        sns.scatterplot(df[x_col.get()], df[y_col.get()], ax=a)
+        sns.lineplot(df[x_col.get()], df[y_col.get()], ax=a)
         canvas = FigureCanvasTkAgg(f, plot_window)
         canvas.draw()
         canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
@@ -83,7 +83,7 @@ with sqlite3.connect("db.db") as conn:
     def build_trend():
         plot_window = Tk()
         plot_window.title("trend")
-        f = Figure(figsize=(5, 5), dpi=200)
+        f = Figure(figsize=(5, 5), dpi=100)
         a = f.add_subplot(111)
         sns.regplot(df[x_col.get()], df[y_col.get()], x_estimator=np.mean, ax=a)
         canvas = FigureCanvasTkAgg(f, plot_window)
@@ -95,7 +95,7 @@ with sqlite3.connect("db.db") as conn:
     def build_hist():
         plot_window = Tk()
         plot_window.title("histogram")
-        f = Figure(figsize=(5, 5), dpi=200)
+        f = Figure(figsize=(5, 5), dpi=100)
         a = f.add_subplot(111)
         agg = df.groupby("bedrooms").apply(np.mean)
         sns.barplot(df[x_col.get()], df[y_col.get()], ax=a)
