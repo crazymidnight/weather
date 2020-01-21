@@ -1,3 +1,3 @@
-# wiseman
+# weather
 
-SQL database table visualization using tkinter.
+Weather visualization
